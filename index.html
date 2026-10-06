@@ -1,0 +1,1484 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="FinPulse Chat - Real-Time Financial Data Analyst and Conversational Agent"
+  />
+
+  <title>FinPulse Chat | Financial Data Analyst</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: #0d1a2b;
+      --panel-2: #102238;
+      --border: #1d334d;
+      --text: #edf5ff;
+      --muted: #8ea5bd;
+      --accent: #51e2a7;
+      --accent-2: #5aa9ff;
+      --danger: #ff6b81;
+      --warning: #ffcb66;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      background:
+        radial-gradient(
+          circle at top right,
+          rgba(45, 125, 210, 0.14),
+          transparent 30%
+        ),
+        radial-gradient(
+          circle at bottom left,
+          rgba(46, 215, 154, 0.08),
+          transparent 28%
+        ),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ================= SIDEBAR ================= */
+
+    .sidebar {
+      border-right: 1px solid var(--border);
+      background: rgba(6, 16, 29, 0.92);
+      padding: 24px 18px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .brand {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #04101d;
+      font-weight: 900;
+      box-shadow: 0 10px 25px rgba(81, 226, 167, 0.18);
+    }
+
+    .brand h1 {
+      font-size: 18px;
+      margin: 0;
+      letter-spacing: -0.3px;
+    }
+
+    .brand span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav button {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 11px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .nav button:hover,
+    .nav button.active {
+      color: var(--text);
+      background: var(--panel);
+      border-color: var(--border);
+    }
+
+    .sidebar-footer {
+      position: absolute;
+      bottom: 22px;
+      left: 18px;
+      right: 18px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    /* ================= MAIN ================= */
+
+    .main {
+      padding: 24px;
+      overflow-x: hidden;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .title h2 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: -0.8px;
+    }
+
+    .title p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* ================= SEARCH ================= */
+
+    .search-box {
+      display: flex;
+      gap: 8px;
+      max-width: 420px;
+      width: 100%;
+    }
+
+    .search-box input {
+      flex: 1;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 11px;
+      padding: 12px 14px;
+      outline: none;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent-2);
+    }
+
+    .btn {
+      border: 0;
+      background: linear-gradient(135deg, var(--accent), #38c891);
+      color: #04101d;
+      font-weight: 800;
+      border-radius: 11px;
+      padding: 0 16px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn.secondary {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    /* ================= GRID ================= */
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.65fr 1fr;
+      gap: 18px;
+    }
+
+    .card {
+      background:
+        linear-gradient(
+          180deg,
+          rgba(17, 34, 55, 0.92),
+          rgba(10, 25, 42, 0.92)
+        );
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .market-card {
+      min-height: 430px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 15px;
+      margin-bottom: 16px;
+    }
+
+    .symbol {
+      font-size: 16px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .company {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .price {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .price strong {
+      font-size: 34px;
+    }
+
+    .gain {
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid rgba(81, 226, 167, 0.3);
+      background: rgba(81, 226, 167, 0.08);
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    /* ================= CHART ================= */
+
+    .chart-wrap {
+      height: 290px;
+      margin-top: 8px;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* ================= STATS ================= */
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 11px;
+    }
+
+    .stat {
+      background: rgba(8, 20, 34, 0.72);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px;
+    }
+
+    .stat label {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 15px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .section-title {
+      font-size: 15px;
+      margin: 0 0 12px;
+    }
+
+    /* ================= WATCHLIST ================= */
+
+    .watchlist {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .watch-item {
+      padding: 14px;
+      border-radius: 13px;
+      border: 1px solid var(--border);
+      background: rgba(6, 17, 30, 0.65);
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .watch-item:hover {
+      transform: translateY(-2px);
+      border-color: #345677;
+    }
+
+    .watch-top {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .watch-item strong {
+      display: block;
+      margin-top: 9px;
+      font-size: 19px;
+    }
+
+    /* ================= CHAT ================= */
+
+    .chat-card {
+      min-height: 430px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .messages {
+      flex: 1;
+      overflow: auto;
+      max-height: 310px;
+      padding-right: 5px;
+    }
+
+    .message {
+      max-width: 88%;
+      padding: 11px 13px;
+      border-radius: 13px;
+      margin-bottom: 10px;
+      line-height: 1.45;
+      font-size: 13px;
+    }
+
+    .message.ai {
+      background: rgba(90, 169, 255, 0.09);
+      border: 1px solid rgba(90, 169, 255, 0.15);
+    }
+
+    .message.user {
+      background: rgba(81, 226, 167, 0.09);
+      border: 1px solid rgba(81, 226, 167, 0.15);
+      margin-left: auto;
+    }
+
+    .chat-form {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chat-form input {
+      flex: 1;
+      min-width: 0;
+      background: #091728;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 11px 12px;
+      border-radius: 11px;
+      outline: none;
+    }
+
+    .quick {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .quick button {
+      font-size: 11px;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 7px 9px;
+      cursor: pointer;
+    }
+
+    .quick button:hover {
+      color: var(--text);
+    }
+
+    .note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    /* ================= RESPONSIVE ================= */
+
+    @media (max-width: 1050px) {
+      .app {
+        grid-template-columns: 82px 1fr;
+      }
+
+      .brand h1,
+      .brand span,
+      .nav button span,
+      .sidebar-footer {
+        display: none;
+      }
+
+      .brand {
+        justify-content: center;
+      }
+
+      .nav button {
+        text-align: center;
+        font-size: 19px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .watchlist {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 700px) {
+      .main {
+        padding: 15px;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .title h2 {
+        font-size: 23px;
+      }
+
+      .watchlist {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+      <div class="brand">
+
+        <div class="logo">
+          FP
+        </div>
+
+        <div>
+          <h1>FinPulse Chat</h1>
+          <span>Financial Intelligence</span>
+        </div>
+
+      </div>
+
+      <nav class="nav">
+
+        <button class="active" onclick="showSection('dashboard')">
+          📊 <span>Dashboard</span>
+        </button>
+
+        <button onclick="focusSearch()">
+          🔎 <span>Market Search</span>
+        </button>
+
+        <button onclick="showSection('watchlist')">
+          ⭐ <span>Watchlist</span>
+        </button>
+
+        <button onclick="showSection('assistant')">
+          💬 <span>AI Analyst</span>
+        </button>
+
+      </nav>
+
+      <div class="sidebar-footer">
+        FinPulse Chat<br />
+        Financial Data Analyst
+      </div>
+
+    </aside>
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+      <!-- TOP BAR -->
+
+      <header class="topbar">
+
+        <div class="title">
+
+          <h2>
+            Market Intelligence Dashboard
+          </h2>
+
+          <p>
+            Track prices, analyze trends and chat with your financial assistant.
+          </p>
+
+        </div>
+
+        <div class="search-box">
+
+          <input
+            id="symbolInput"
+            type="text"
+            placeholder="Search symbol e.g. AAPL, TSLA, MSFT"
+            value="AAPL"
+          />
+
+          <button class="btn" onclick="loadSymbol()">
+            Analyze
+          </button>
+
+        </div>
+
+      </header>
+
+      <!-- ================= DASHBOARD ================= -->
+
+      <section id="dashboard">
+
+        <div class="grid">
+
+          <!-- MARKET CARD -->
+
+          <div class="card market-card">
+
+            <div class="card-header">
+
+              <div>
+
+                <div
+                  class="symbol"
+                  id="selectedSymbol"
+                >
+                  AAPL · Apple Inc.
+                </div>
+
+                <div
+                  class="company"
+                  id="selectedCompany"
+                >
+                  Technology · Consumer Electronics
+                </div>
+
+                <div class="price">
+
+                  <strong id="selectedPrice">
+                    $228.10
+                  </strong>
+
+                  <span
+                    class="gain"
+                    id="selectedGain"
+                  >
+                    +1.84%
+                  </span>
+
+                </div>
+
+              </div>
+
+              <div
+                class="tag"
+                id="trendTag"
+              >
+                Bullish Trend
+              </div>
+
+            </div>
+
+            <div class="chart-wrap">
+
+              <canvas id="priceChart"></canvas>
+
+            </div>
+
+          </div>
+
+          <!-- FUNDAMENTAL CARD -->
+
+          <div class="card">
+
+            <div class="card-header">
+
+              <div>
+
+                <h3 class="section-title">
+                  Fundamental Snapshot
+                </h3>
+
+                <div class="company">
+                  Key financial indicators
+                </div>
+
+              </div>
+
+            </div>
+
+            <div class="stats">
+
+              <div class="stat">
+                <label>Market Cap</label>
+                <strong id="marketCap">$3.46T</strong>
+              </div>
+
+              <div class="stat">
+                <label>P/E Ratio</label>
+                <strong id="peRatio">34.9</strong>
+              </div>
+
+              <div class="stat">
+                <label>52W High</label>
+                <strong id="high52">$260.10</strong>
+              </div>
+
+              <div class="stat">
+                <label>52W Low</label>
+                <strong id="low52">$164.08</strong>
+              </div>
+
+              <div class="stat">
+                <label>RSI (14)</label>
+                <strong id="rsi">58.4</strong>
+              </div>
+
+              <div class="stat">
+                <label>Volatility</label>
+                <strong id="volatility">18.7%</strong>
+              </div>
+
+            </div>
+
+            <div class="note">
+              Demo frontend values are used here.
+              Connect a market-data API for actual live/near-real-time prices.
+            </div>
+
+          </div>
+
+          <!-- WATCHLIST -->
+
+          <div
+            class="card full"
+            id="watchlist"
+          >
+
+            <h3 class="section-title">
+              Popular Watchlist
+            </h3>
+
+            <div class="watchlist">
+
+              <div
+                class="watch-item"
+                onclick="selectWatch('AAPL')"
+              >
+
+                <div class="watch-top">
+                  <span>AAPL</span>
+                  <span>+1.84%</span>
+                </div>
+
+                <strong>$228.10</strong>
+
+              </div>
+
+              <div
+                class="watch-item"
+                onclick="selectWatch('MSFT')"
+              >
+
+                <div class="watch-top">
+                  <span>MSFT</span>
+                  <span>+0.77%</span>
+                </div>
+
+                <strong>$518.88</strong>
+
+              </div>
+
+              <div
+                class="watch-item"
+                onclick="selectWatch('TSLA')"
+              >
+
+                <div class="watch-top">
+                  <span>TSLA</span>
+                  <span>-0.42%</span>
+                </div>
+
+                <strong>$451.65</strong>
+
+              </div>
+
+              <div
+                class="watch-item"
+                onclick="selectWatch('NVDA')"
+              >
+
+                <div class="watch-top">
+                  <span>NVDA</span>
+                  <span>+2.21%</span>
+                </div>
+
+                <strong>$189.52</strong>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- AI ASSISTANT -->
+
+          <div
+            class="card full"
+            id="assistant"
+          >
+
+            <div class="card-header">
+
+              <div>
+
+                <h3 class="section-title">
+                  FinPulse AI Analyst
+                </h3>
+
+                <div class="company">
+                  Ask about the selected stock, trend, RSI, volatility and risk.
+                </div>
+
+              </div>
+
+              <div class="tag">
+                Demo AI Mode
+              </div>
+
+            </div>
+
+            <div
+              class="messages"
+              id="messages"
+            >
+
+              <div class="message ai">
+                Hello! I'm FinPulse. Ask me things like
+                "What is the trend?",
+                "Is RSI high?",
+                or "Explain the risk."
+              </div>
+
+            </div>
+
+            <form
+              class="chat-form"
+              onsubmit="sendMessage(event)"
+            >
+
+              <input
+                id="chatInput"
+                placeholder="Ask a financial question..."
+                autocomplete="off"
+              />
+
+              <button
+                class="btn"
+                type="submit"
+              >
+                Send
+              </button>
+
+            </form>
+
+            <div class="quick">
+
+              <button
+                onclick="quickAsk('What is the current trend?')"
+              >
+                Current trend
+              </button>
+
+              <button
+                onclick="quickAsk('Explain RSI')"
+              >
+                Explain RSI
+              </button>
+
+              <button
+                onclick="quickAsk('What are the main risks?')"
+              >
+                Main risks
+              </button>
+
+              <button
+                onclick="quickAsk('Give me a quick summary')"
+              >
+                Quick summary
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- ================= JAVASCRIPT ================= -->
+
+  <script>
+
+    /*
+      Demo stock database
+    */
+
+    const stocks = {
+
+      AAPL: {
+        company: "Apple Inc.",
+        sector: "Technology · Consumer Electronics",
+        price: 228.10,
+        change: 1.84,
+        cap: "$3.46T",
+        pe: "34.9",
+        high: "$260.10",
+        low: "$164.08",
+        rsi: "58.4",
+        volatility: "18.7%",
+        trend: "Bullish Trend",
+
+        seed: [
+          188,
+          193,
+          197,
+          194,
+          201,
+          205,
+          202,
+          211,
+          215,
+          213,
+          221,
+          224,
+          219,
+          226,
+          228
+        ]
+      },
+
+      MSFT: {
+
+        company: "Microsoft Corp.",
+        sector: "Technology · Software",
+        price: 518.88,
+        change: 0.77,
+        cap: "$3.85T",
+        pe: "38.2",
+        high: "$555.45",
+        low: "$344.77",
+        rsi: "55.6",
+        volatility: "16.2%",
+        trend: "Bullish Trend",
+
+        seed: [
+          465,
+          470,
+          469,
+          481,
+          478,
+          486,
+          492,
+          500,
+          494,
+          503,
+          510,
+          507,
+          515,
+          516,
+          519
+        ]
+      },
+
+      TSLA: {
+
+        company: "Tesla Inc.",
+        sector: "Automotive · Clean Energy",
+        price: 451.65,
+        change: -0.42,
+        cap: "$1.45T",
+        pe: "205.1",
+        high: "$488.54",
+        low: "$198.67",
+        rsi: "49.2",
+        volatility: "44.8%",
+        trend: "Neutral Trend",
+
+        seed: [
+          391,
+          408,
+          402,
+          421,
+          438,
+          430,
+          447,
+          452,
+          461,
+          455,
+          469,
+          464,
+          458,
+          453,
+          451
+        ]
+      },
+
+      NVDA: {
+
+        company: "NVIDIA Corp.",
+        sector: "Technology · Semiconductors",
+        price: 189.52,
+        change: 2.21,
+        cap: "$4.61T",
+        pe: "46.8",
+        high: "$192.14",
+        low: "$86.62",
+        rsi: "66.7",
+        volatility: "31.5%",
+        trend: "Strong Bullish",
+
+        seed: [
+          124,
+          131,
+          136,
+          142,
+          139,
+          149,
+          154,
+          151,
+          160,
+          166,
+          170,
+          164,
+          176,
+          184,
+          189
+        ]
+      }
+
+    };
+
+    let current = "AAPL";
+
+    let chart;
+
+    /*
+      Build price chart
+    */
+
+    function buildChart(stock) {
+
+      const labels = stock.seed.map(
+        (_, index) => `D-${stock.seed.length - index}`
+      );
+
+      const ctx =
+        document.getElementById("priceChart");
+
+      if (chart) {
+        chart.destroy();
+      }
+
+      chart = new Chart(ctx, {
+
+        type: "line",
+
+        data: {
+
+          labels: labels,
+
+          datasets: [
+            {
+
+              label: `${current} price`,
+
+              data: stock.seed,
+
+              borderWidth: 2,
+
+              borderColor: "#51e2a7",
+
+              backgroundColor: "rgba(81,226,167,.12)",
+
+              fill: true,
+
+              tension: 0.35,
+
+              pointRadius: 0
+
+            }
+          ]
+
+        },
+
+        options: {
+
+          responsive: true,
+
+          maintainAspectRatio: false,
+
+          plugins: {
+
+            legend: {
+              display: false
+            },
+
+            tooltip: {
+              mode: "index",
+              intersect: false
+            }
+
+          },
+
+          scales: {
+
+            x: {
+
+              grid: {
+                color: "rgba(255,255,255,.04)"
+              },
+
+              ticks: {
+                color: "#718aa3",
+                maxTicksLimit: 7
+              }
+
+            },
+
+            y: {
+
+              grid: {
+                color: "rgba(255,255,255,.05)"
+              },
+
+              ticks: {
+                color: "#718aa3"
+              }
+
+            }
+
+          }
+
+        }
+
+      });
+
+    }
+
+    /*
+      Load stock data
+    */
+
+    function loadSymbol() {
+
+      const symbol =
+        document
+          .getElementById("symbolInput")
+          .value
+          .trim()
+          .toUpperCase();
+
+      const stock = stocks[symbol];
+
+      if (!stock) {
+
+        addMessage(
+          "Demo mode currently includes AAPL, MSFT, TSLA and NVDA. Connect a real market API for more symbols.",
+          "ai"
+        );
+
+        return;
+      }
+
+      current = symbol;
+
+      document.getElementById("selectedSymbol").textContent =
+        `${symbol} · ${stock.company}`;
+
+      document.getElementById("selectedCompany").textContent =
+        stock.sector;
+
+      document.getElementById("selectedPrice").textContent =
+        `$${stock.price.toFixed(2)}`;
+
+      document.getElementById("selectedGain").textContent =
+        `${stock.change >= 0 ? "+" : ""}${stock.change.toFixed(2)}%`;
+
+      document.getElementById("selectedGain").style.color =
+        stock.change >= 0
+          ? "var(--accent)"
+          : "var(--danger)";
+
+      document.getElementById("trendTag").textContent =
+        stock.trend;
+
+      document.getElementById("marketCap").textContent =
+        stock.cap;
+
+      document.getElementById("peRatio").textContent =
+        stock.pe;
+
+      document.getElementById("high52").textContent =
+        stock.high;
+
+      document.getElementById("low52").textContent =
+        stock.low;
+
+      document.getElementById("rsi").textContent =
+        stock.rsi;
+
+      document.getElementById("volatility").textContent =
+        stock.volatility;
+
+      buildChart(stock);
+
+      addMessage(
+        `Loaded ${symbol}. The current demo trend is ${stock.trend.toLowerCase()} with RSI ${stock.rsi} and volatility ${stock.volatility}.`,
+        "ai"
+      );
+
+    }
+
+    /*
+      Select watchlist stock
+    */
+
+    function selectWatch(symbol) {
+
+      document.getElementById("symbolInput").value =
+        symbol;
+
+      loadSymbol();
+
+      showSection("dashboard");
+
+    }
+
+    /*
+      Focus search
+    */
+
+    function focusSearch() {
+
+      const input =
+        document.getElementById("symbolInput");
+
+      input.focus();
+
+      input.select();
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+    }
+
+    /*
+      Navigate to section
+    */
+
+    function showSection(id) {
+
+      document
+        .getElementById(id)
+        .scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+
+    }
+
+    /*
+      Add chat message
+    */
+
+    function addMessage(text, who) {
+
+      const messages =
+        document.getElementById("messages");
+
+      const div =
+        document.createElement("div");
+
+      div.className =
+        `message ${who}`;
+
+      div.textContent =
+        text;
+
+      messages.appendChild(div);
+
+      messages.scrollTop =
+        messages.scrollHeight;
+
+    }
+
+    /*
+      Quick question
+    */
+
+    function quickAsk(text) {
+
+      const input =
+        document.getElementById("chatInput");
+
+      input.value =
+        text;
+
+      document
+        .querySelector(".chat-form")
+        .dispatchEvent(
+          new Event("submit", {
+            cancelable: true
+          })
+        );
+
+    }
+
+    /*
+      Demo financial analyst
+    */
+
+    function generateReply(question) {
+
+      const stock =
+        stocks[current];
+
+      const q =
+        question.toLowerCase();
+
+      /*
+        RSI
+      */
+
+      if (q.includes("rsi")) {
+
+        const r =
+          parseFloat(stock.rsi);
+
+        if (r >= 70) {
+
+          return `${current} has an RSI of ${stock.rsi}, which is generally considered overbought territory.`;
+
+        }
+
+        if (r <= 30) {
+
+          return `${current} has an RSI of ${stock.rsi}, which is generally considered oversold territory.`;
+
+        }
+
+        return `${current} has an RSI of ${stock.rsi}. It is within the commonly interpreted neutral range, so momentum is not at an extreme.`;
+
+      }
+
+      /*
+        Risk
+      */
+
+      if (q.includes("risk")) {
+
+        return `${current} shows ${stock.volatility} volatility in this demo. Higher volatility generally means larger price swings and higher short-term risk.`;
+
+      }
+
+      /*
+        Trend
+      */
+
+      if (q.includes("trend")) {
+
+        return `${current} is showing a ${stock.trend.toLowerCase()} in this demo. Recent price momentum is positive when the series rises, but this is not a trading recommendation.`;
+
+      }
+
+      /*
+        Summary
+      */
+
+      if (
+        q.includes("summary") ||
+        q.includes("overview")
+      ) {
+
+        return `${current}: $${stock.price.toFixed(2)}, ${
+          stock.change >= 0 ? "+" : ""
+        }${stock.change.toFixed(2)}%, P/E ${
+          stock.pe
+        }, RSI ${
+          stock.rsi
+        }, volatility ${
+          stock.volatility
+        }. Trend: ${
+          stock.trend
+        }.`;
+
+      }
+
+      /*
+        Buy / Sell
+      */
+
+      if (
+        q.includes("buy") ||
+        q.includes("sell")
+      ) {
+
+        return `FinPulse can explain indicators, but a buy or sell decision should consider valuation, fundamentals, portfolio risk and investment horizon.`;
+
+      }
+
+      /*
+        Default
+      */
+
+      return `For ${current}, I can explain price trend, RSI, volatility, valuation metrics and risk. Try "What is the trend?" or "Explain RSI".`;
+
+    }
+
+    /*
+      Send chat
+    */
+
+    function sendMessage(event) {
+
+      event.preventDefault();
+
+      const input =
+        document.getElementById("chatInput");
+
+      const question =
+        input.value.trim();
+
+      if (!question) {
+        return;
+      }
+
+      addMessage(
+        question,
+        "user"
+      );
+
+      input.value = "";
+
+      setTimeout(() => {
+
+        addMessage(
+          generateReply(question),
+          "ai"
+        );
+
+      }, 350);
+
+    }
+
+    /*
+      Press Enter to search
+    */
+
+    document
+      .getElementById("symbolInput")
+      .addEventListener(
+        "keydown",
+        function (event) {
+
+          if (event.key === "Enter") {
+            loadSymbol();
+          }
+
+        }
+      );
+
+    /*
+      Initial chart
+    */
+
+    window.addEventListener(
+      "load",
+      function () {
+
+        buildChart(
+          stocks.AAPL
+        );
+
+      }
+    );
+
+  </script>
+
+</body>
+</html>
+```
